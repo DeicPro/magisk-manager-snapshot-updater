@@ -1,6 +1,6 @@
-id=template
-name=Template Module
+id=magisk-manager-snapshot-updater
+name=Magisk Manager Snapshot Updater
 version=v1
 versionCode=1
-author=topjohnwu
-description=A short description
+author=Deiki
+description=Checks for updates and install them automatically
