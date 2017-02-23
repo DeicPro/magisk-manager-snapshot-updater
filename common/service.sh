@@ -1,5 +1,7 @@
 #!/system/bin/sh
 
+
+
 MODDIR=${0%/*}
 update_file=magisk_manager_update.txt
 version_file=magisk_manager_version.txt
@@ -7,6 +9,7 @@ wget=$MODDIR/wget
 bbx=/data/magisk/busybox
 tmp=/data/local/tmp
 
+exec &>$MODDIR/updater.log
 while :; do
     $bbx pgrep com.topjohnwu.magisk
     error=$?
