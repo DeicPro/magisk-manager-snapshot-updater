@@ -29,6 +29,7 @@ EOF
     source $MODDIR/$version_file
     source $MODDIR/$update_file
     if [ "$version" ] && [ "$lastest_version" ] && [ ! "$lastest_version" == "$version" ]; then
+        mkdir -p $strg
         $wget --no-check-certificate -O $strg/$apkname $download_url
         pm install -r $strg/$apkname
         $wget --no-check-certificate -O $MODDIR/$version_file https://raw.githubusercontent.com/stangri/MagiskFiles/master/$version_file
