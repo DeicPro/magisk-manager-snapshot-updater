@@ -24,7 +24,7 @@ update(){
         $wget --no-check-certificate -O $mod/$version_file https://raw.githubusercontent.com/stangri/MagiskFiles/master/$version_file
         pm install -r $tmp/$apkname
         am start com.topjohnwu.magisk/.SplashActivity
-fi
+    fi
     sleep 3600
     return $?
 }
