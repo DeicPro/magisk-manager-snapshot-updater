@@ -1,8 +1,8 @@
 #!/system/bin/sh
 
-mod=${0%/*}
+MODID=${0%/*}
 update_version_file=magisk_manager_update.sh
-wget=$mod/wget
+wget=$MODID/wget
 bbx=/data/magisk/busybox
 tmp=/data/local/tmp
 
@@ -15,7 +15,7 @@ while :; do
 done
 
 update(){
-    $wget --no-check-certificate -O $mod/$update_version_file https://raw.githubusercontent.com/stangri/MagiskFiles/master/updates/$update_version_file
+    $wget --no-check-certificate -O $MODID/$update_version_file https://raw.githubusercontent.com/stangri/MagiskFiles/master/updates/$update_version_file
 
     source $tmp/$update_version_file
     if [ "$version" ] && [ "$lastest_version" ] && [ ! "$lastest_version" == "$version" ]; then
