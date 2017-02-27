@@ -14,7 +14,7 @@ check(){
     echo "Waiting for Magisk Manager process start..."
 
     while sleep 1; do
-        uid=$($bbx pgrep com.topjohnwu.magisk)
+        pid=$($bbx pgrep com.topjohnwu.magisk)
         error=$?
         if [ "$error" == 0 ]; then
             break
@@ -25,7 +25,7 @@ check(){
 }
 
 update(){
-    chmod 755 $MODDIR/wget
+    chmod 755 $wget
 
     $wget --no-check-certificate -O $MODDIR/$update_file $url/updates/$update_file
 
@@ -41,27 +41,54 @@ EOF
     source $MODDIR/$version_file
     source $MODDIR/$update_file
 
+    if [ -f $MODDIR/config.txt ]; then
+        chmod 755 $MODDIR/config.txt
+        source $MODDIR/config.txt
+    fi
+
     if [ "$version" ] && [ "$lastest_version" ] && [ ! "$lastest_version" == "$version" ]; then
         mkdir -p $strg
         $wget --no-check-certificate -O $strg/$apkname $download_url
         status=$(ls /data/app | grep com.topjohnwu.magisk*)
+        if [ "$pm" != 0 ]; then
+            pm_install=1
+            pm install -r $strg/$apkname &
+            check_install
+        fi
         am start -d file:$strg/$apkname
-        while sleep 1; do
-            if [ "$status" != "$(ls /data/app | grep com.topjohnwu.magisk*)" ]; then
-                break
-            fi
-        done
-        $wget --no-check-certificate -O $MODDIR/$version_file $url/$version_file
+        check_install
+        if [ "$installed" != 0 ]; then
+            $wget --no-check-certificate -O $MODDIR/$version_file $url/$version_file
+        fi
     fi
 
     echo "Waiting for Magisk Manager process close..."
-    while sleep 60; do
-        if [ "$uid" != "$($bbx pgrep com.topjohnwu.magisk)" ]; then
+
+    while sleep 300; do
+        if [ "$pid" != "$($bbx pgrep com.topjohnwu.magisk)" ]; then
             break
         fi
     done
 
     check
+}
+
+check_install(){
+    while sleep 1; do
+        if [ "$status" != "$(ls /data/app | grep com.topjohnwu.magisk*)" ]; then
+            unset installed
+            break
+        fi
+        count=$(($count+1))
+        if [ "$count" == 300 ]; then
+            unset count
+            installed=0
+            if [ "$pm_install" == 1 ]; then
+                echo  "pm=0" > $MODDIR/config.txt
+            fi
+            break
+        fi
+    done
 }
 
 check
