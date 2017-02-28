@@ -1,6 +1,8 @@
-#!/system/bin/sh
+j#!/system/bin/sh
 
 MODDIR=${0%/*}
+module_version="2.0"
+module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
 version_file=magisk_manager_version.txt
 wget=$MODDIR/wget
@@ -9,6 +11,28 @@ strg=/storage/emulated/0/MagiskManager
 url=https://raw.githubusercontent.com/stangri/MagiskFiles/master
 
 exec &>$MODDIR/updater.log
+
+module_update(){
+    chmod 755 $wget
+
+    $wget --no-check-certificate -O $MODDIR/$module_update_file $url/updates/$module_update_file
+
+    chmod 755 $MODDIR/$module_update_file
+
+    source $MODDIR/$module_update_file
+
+    if [ "$module_version" ] && [ "$module_lastest_version" ] && [ ! "$module_lastest_version" == "$module_version" ]; then
+        $wget --no-check-certificate -O $strg/$module_file $module_download_url
+        $bbx unzip -o $strg/module_file module.prop common/service.sh common/wget -d $strg
+        cp -f $strg/module.prop $MODDIR/module.prop
+        cp -f $strg/common/service.sh $MODDIR/service.sh
+        cp -f $strg/common/wget $MODDIR/wget
+        sh $MODDIR/service.sh &
+        exit
+    fi
+
+    check
+}
 
 check(){
     echo "Waiting for Magisk Manager process start..."
@@ -25,14 +49,10 @@ check(){
 }
 
 update(){
-    chmod 755 $wget
-
     $wget --no-check-certificate -O $MODDIR/$update_file $url/updates/$update_file
 
     if [ ! -f $MODDIR/$version_file ]; then
-cat > $MODDIR/$version_file <<EOF
-version=170221
-EOF
+        echo "version=170221" > $MODDIR/$version_file
     fi
 
     chmod 755 $MODDIR/$version_file
@@ -48,17 +68,17 @@ EOF
 
     if [ "$version" ] && [ "$lastest_version" ] && [ ! "$lastest_version" == "$version" ]; then
         mkdir -p $strg
-        $wget --no-check-certificate -O $strg/$apkname $download_url
+        $wget --no-check-certificate -O $strg/$apk_file $download_url
         status=$(ls /data/app | grep com.topjohnwu.magisk*)
         if [ "$pm" != 0 ]; then
             pm_install=1
-            pm install -r $strg/$apkname &
+            pm install -r $strg/$apk_file &
             check_install
         fi
-        am start -d file:$strg/$apkname
+        am start -d file:$strg/$apk_file
         check_install
         if [ "$installed" != 0 ]; then
-            $wget --no-check-certificate -O $MODDIR/$version_file $url/$version_file
+            echo "version=$version" > $MODDIR/$version_file
         fi
     fi
 
@@ -91,5 +111,4 @@ check_install(){
     done
 }
 
-check
-update
+module_update
