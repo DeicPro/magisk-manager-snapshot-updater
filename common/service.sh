@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
 MODDIR=${0%/*}
-module_version=2.0
+module_version=2.0.1
 module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
 version_file=magisk_manager_version.txt
@@ -78,7 +78,7 @@ update(){
         am start -d file:$strg/$apk_file
         check_install
         if [ "$installed" != 0 ]; then
-            echo "version=$version" > $MODDIR/$version_file
+            echo "version=$lastest_version" > $MODDIR/$version_file
         fi
     fi
 
