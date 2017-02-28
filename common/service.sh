@@ -1,4 +1,4 @@
-j#!/system/bin/sh
+#!/system/bin/sh
 
 MODDIR=${0%/*}
 module_version=2.0
