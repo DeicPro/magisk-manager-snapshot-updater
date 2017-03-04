@@ -294,7 +294,9 @@ fi
 if ($LATESTARTSERVICE); then
   cp -af $INSTALLER/common/service.sh $MODPATH/service.sh
 fi
+
 cp -af $INSTALLER/common/wget $MODPATH/wget
+
 ui_print "- Setting permissions"
 set_permissions
 
