@@ -10,7 +10,7 @@ cat /system/build.prop | grep ro.build
 cat /system/build.prop | grep ro.product
 cat /system/build.prop | grep ro.board
 
-module_version=3.0.0
+module_version=3.0.1
 module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
 version_file=magisk_manager_version.txt
