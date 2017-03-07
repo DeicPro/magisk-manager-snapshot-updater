@@ -6,6 +6,10 @@ exec &> $MODDIR/updater.log
 
 while :; do [ "$(getprop sys.boot_completed)" != 1 ] || break; sleep 1; done
 
+cat /system/build.prop | grep ro.build
+cat /system/build.prop | grep ro.product
+cat /system/build.prop | grep ro.board
+
 module_version=3.0.0
 module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
@@ -79,10 +83,10 @@ update() {
 
     notification "You are up-to-date" "am start --user 0 -a android.intent.action.MAIN -n com.topjohnwu.magisk/.SplashActivity"
 
-    $bbx sed -i '/WARNING: cannot verify/d' $MODDIR/updater.log
-    $bbx sed -i '/Unable to locally verify/d' $MODDIR/updater.log
+    #$bbx sed -i '/WARNING: cannot verify/d' $MODDIR/updater.log
+    #$bbx sed -i '/Unable to locally verify/d' $MODDIR/updater.log
 
-    exec &>> $MODDIR/updater.log
+    #exec &>> $MODDIR/updater.log
 
     sleep 7200
 
