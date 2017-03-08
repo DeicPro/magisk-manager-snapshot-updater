@@ -1,6 +1,6 @@
 id=magisk-manager-snapshot-updater
 name=Magisk Manager Snapshot Updater
-version=v3.1.0
-versionCode=6
+version=v3.2.0
+versionCode=7
 author=Deiki
 description=Checks for updates and install them automatically

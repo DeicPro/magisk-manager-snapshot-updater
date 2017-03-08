@@ -2,6 +2,8 @@
 
 MODDIR=${0%/*}
 
+mv $MODDIR/updater.log $MODDIR/previous_updater.log
+
 exec &> $MODDIR/updater.log
 
 while :; do [ "$(getprop sys.boot_completed)" != 1 ] || break; sleep 1; done
@@ -20,13 +22,19 @@ url=https://raw.githubusercontent.com/stangri/MagiskFiles/master
 
 download() { chmod 755 $MODDIR/wget; $MODDIR/wget -nv --no-check-certificate -O $1; }
 
-notification() { am startservice -e str_exec "$2" -e str_ticker "" -e str_title "Magisk Manager Snapshot Updater" -e str_content "$1" -e b_autocancel "1" -n com.hal9k.notify4scripts/.NotifyServiceCV; }
+notification() {
+    str_exec="am start --user 0 -a android.intent.action.MAIN -n com.topjohnwu.magisk/.SplashActivity"
 
-toast() { am start -a android.intent.action.MAIN -e message "Magisk Manager Snapshot Updater:
-$1" -n com.rja.utility/.ShowToast; }
+    [ "$3" ] && { str_exec="su \ntouch $MODDIR/.wait"; }
+
+    am startservice -e int_cancel "$2" -n com.hal9k.notify4scripts/.NotifyServiceCV
+    am startservice -e str_exec "$str_exec" -e str_ticker "" -e str_title "Magisk Manager Snapshot Updater" -e str_content "$1" -e b_autocancel "1" -e int_id "$2" -n com.hal9k.notify4scripts/.NotifyServiceCV
+
+    [ "$3" ] && { while :; do [ -f $MODDIR/.wait ] && { rm -f $MODDIR/.wait; break; }; sleep 3; done; }
+}
 
 module_update() {
-    #notification "Checking for module updates..."
+    [ "$first_run" ] || notification "Checking for module updates..." "1"
 
     download "$MODDIR/$module_update_file $url/updates/$module_update_file"
 
@@ -35,26 +43,26 @@ module_update() {
     source $MODDIR/$module_update_file
 
     if [ "$module_version" ] && [ "$module_lastest_version" ] && [ "$module_lastest_version" != "$module_version" ]; then
-        notification "Downloading module v${module_lastest_version}..."
-        #toast "Downloading module v${module_lastest_version}..."
+        notification "New module v${module_lastest_version} found" "1" "1"
+        notification "Downloading module v${module_lastest_version}..." "1"
         download "$strg/$module_file $module_download_url"
-        notification "Updating module..."
-        #toast "Updating module..."
+        notification "Updating module..." "1"
         $bbx unzip -o $strg/$module_file module.prop common/service.sh common/wget -d $strg
         cp -f $strg/module.prop $MODDIR/module.prop
         cp -f $strg/common/service.sh $MODDIR/service.sh
         cp -f $strg/common/wget $MODDIR/wget
-        notification "Module successfully updated"
-        #toast "Module successfully updated"
+        notification "Module successfully updated" "1"
         sh $MODDIR/service.sh &
         exit
     fi
+
+    [ "$first_run" ] || notification "Module is up-to-date" "1"
 
     update
 }
 
 update() {
-    #notification "Checking for Magisk Manager updates..."
+    [ "$first_run" ] || notification "Checking for Magisk Manager updates..." "2"
 
     download "$MODDIR/$update_file $url/updates/$update_file"
 
@@ -70,23 +78,17 @@ update() {
 
     if [ "$version" ] && [ "$lastest_version" ] && [ "$lastest_version" != "$version" ]; then
         [ ! -f $strg ] && { mkdir -p $strg; }
-        notification "Downloading Magisk Manager v${lastest_version}..."
-        #toast "Downloading Magisk Manager v${lastest_version}..."
+        notification "New Magisk Manager v${lastest_version} found" "2" "1"
+        notification "Downloading Magisk Manager v${lastest_version}..." "2"
         installing=0
         install_tool "com.topjohnwu.magisk" "$apk_file" "$download_url"
         if [ "$installing" == 1 ]; then
             echo "version=$lastest_version" > $MODDIR/$version_file
-            notification "Magisk Manager successfully updated" "am start --user 0 -a android.intent.action.MAIN -n com.topjohnwu.magisk/.SplashActivity"
-            #toast "Magisk Manager successfully updated"
+            notification "Magisk Manager successfully updated" "2"
         fi
     fi
 
-    #notification "You are up-to-date" "am start --user 0 -a android.intent.action.MAIN -n com.topjohnwu.magisk/.SplashActivity"
-
-    #$bbx sed -i '/WARNING: cannot verify/d' $MODDIR/updater.log
-    #$bbx sed -i '/Unable to locally verify/d' $MODDIR/updater.log
-
-    #exec &>> $MODDIR/updater.log
+    [ "$first_run" ] || { notification "Magisk Manager is up-to-date" "2"; first_run=1; }
 
     sleep 600
 
@@ -110,15 +112,15 @@ install_tool() {
             if [ ! "$install" ]; then
                 if [ "$pm" != 0 ]; then
                     if [ "$installing" ]; then
-                        notification "Updating Magisk Manager..."
-                        #toast "Updating Magisk Manager..."
+                        notification "Updating Magisk Manager..." "2"
                     fi
                     pm install -r $strg/$2 &
                     install=1
                 else
                     if [ "$installing" ]; then
-                        notification "Tap to install new Magisk Manager v${lastest_version}" "am start --user 0 -d file:$strg/$2"
-                        #toast "Tap the notification to install new Magisk Manager v${lastest_version}"
+                        notification "Install Magisk Manager ${lastest_version}" "2" "1"
+                        am start --user 0 -d file:$strg/$2
+                        notification "Updating Magisk Manager..." "2"
                     else
                         am start -d file:$strg/$2
                     fi
@@ -142,7 +144,5 @@ install_tool() {
 }
 
 [ -d /data/app/com.hal9k.notify4scripts* ] || install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/halnovemila/Notify4Scripts/raw/master/com.hal9k.notify4scripts.apk"
-
-[ -d /data/app/com.rja.utility* ] || install_tool "com.rja.utility" "ShowToastMessage_NoDrawerIcon.apk" "https://forum.xda-developers.com/attachment.php?attachmentid=395194&d=1283630913"
 
 module_update
