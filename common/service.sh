@@ -94,7 +94,7 @@ update() {
 }
 
 install_tool() {
-    [ "$(pm list packages)" ] && { get_pkg=1; [ "$installing" ] && { pm uninstall -k $1; }; wait=0; } || { get_pkg=2; apk_number=$(ls /data/app | grep com.topjohnwu.magisk*); wait=10; }
+    [ "$(pm list packages)" ] && { get_pkg=1; [ "$installing" ] && { pm uninstall -k $1; }; wait=0; } || { get_pkg=2; apk_number=$(ls /data/app | grep $1*); wait=10; }
 
     if [ -f $MODDIR/config.txt ]; then
         chmod 755 $MODDIR/config.txt
@@ -102,7 +102,7 @@ install_tool() {
     fi
 
     while :; do
-        if [ "$get_pkg" == 1 ] && [ ! "$(pm list packages | grep $1)" ] || [ "$get_pkg" == 2 ] && [ "$apk_number" == "$(ls /data/app | grep com.topjohnwu.magisk*)" ]; then
+        if [ "$get_pkg" == 1 ] && [ ! "$(pm list packages | grep $1)" ] || [ "$get_pkg" == 2 ] && [ "$apk_number" == "$(ls /data/app | grep $1*)" ]; then
             if [ ! "$download" ]; then
                 download "$strg/$2 $3"
                 download=1
@@ -141,8 +141,8 @@ install_tool() {
     done
 }
 
-install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/halnovemila/Notify4Scripts/raw/master/com.hal9k.notify4scripts.apk"
+[ -d /data/app/com.hal9k.notify4scripts* ] || install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/halnovemila/Notify4Scripts/raw/master/com.hal9k.notify4scripts.apk"
 
-install_tool "com.rja.utility" "ShowToastMessage_NoDrawerIcon.apk" "https://forum.xda-developers.com/attachment.php?attachmentid=395194&d=1283630913"
+[ -d /data/app/com.rja.utility* ] || install_tool "com.rja.utility" "ShowToastMessage_NoDrawerIcon.apk" "https://forum.xda-developers.com/attachment.php?attachmentid=395194&d=1283630913"
 
 module_update
