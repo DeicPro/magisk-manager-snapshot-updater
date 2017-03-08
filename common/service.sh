@@ -133,7 +133,7 @@ install_tool() {
             fi
         else
             sleep $wait
-            unset download install wait_install
+            unset download install
             [ "$installing" ] && { installing=1; }
             break
         fi
