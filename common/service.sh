@@ -59,7 +59,7 @@ update() {
     download "$MODDIR/$update_file $url/updates/$update_file"
 
     if [ ! -f $MODDIR/$version_file ]; then
-        echo "version=170304" > $MODDIR/$version_file
+        echo "version=170308" > $MODDIR/$version_file
     fi
 
     chmod 755 $MODDIR/$version_file
@@ -94,15 +94,18 @@ update() {
 }
 
 install_tool() {
-    [ "$(pm list packages)" ] && { get_pkg=1; [ "$installing" ] && { pm uninstall -k $1; }; wait=0; } || { get_pkg=2; apk_number=$(ls /data/app | grep $1*); wait=10; }
+    echo "pm=0" > $strg/config.txt
+    get_pkg=2
+    apk_number=$(ls /data/app | grep $1*)
+    wait=10
 
-    if [ -f $MODDIR/config.txt ]; then
-        chmod 755 $MODDIR/config.txt
-        source $MODDIR/config.txt
+    if [ -f $strg/config.txt ]; then
+        chmod 755 $strg/config.txt
+        source $strg/config.txt
     fi
 
     while :; do
-        if [ "$get_pkg" == 1 ] && [ ! "$(pm list packages | grep $1)" ] || [ "$get_pkg" == 2 ] && [ "$apk_number" == "$(ls /data/app | grep $1*)" ]; then
+        if [ "$get_pkg" == 2 ] && [ "$apk_number" == "$(ls /data/app | grep $1*)" ]; then
             if [ ! "$download" ]; then
                 download "$strg/$2 $3"
                 download=1
@@ -128,7 +131,7 @@ install_tool() {
             count=$(($count+3))
             if [ "$count" == 150 ]; then
                 unset count install
-                echo "pm=0" > $MODDIR/config.txt
+                echo "pm=0" > $strg/config.txt
                 pm=0
             fi
         else
