@@ -49,7 +49,7 @@ module_update() {
         rm -rf $strg/module
         notification "Module successfully updated"
         #toast "Module successfully updated"
-        sh $MODDIR/updater.sh &
+        sh $MODDIR/service.sh &
         exit
     fi
 
