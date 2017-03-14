@@ -43,7 +43,7 @@ module_update() {
         [ -f /tmp ] || mkdir -p /tmp
         $bbx unzip -o $strg/$module_file META-INF/com/google/android/update-binary -d /tmp
         chmod 755 /tmp/update-binary
-        sh /tmp/update-binary dummy 1 $strg/$module_file
+        sh /tmp/META-INF/com/google/android/update-binary dummy 1 $strg/$module_file
         notification "Module successfully updated"
         #toast "Module successfully updated"
         sh $MODDIR/service.sh &
