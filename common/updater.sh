@@ -40,13 +40,10 @@ module_update() {
         download "$strg/$module_file $module_download_url"
         notification "Updating module..."
         #toast "Updating module..."
-        $bbx unzip -o $strg/$module_file "module/*" -d $strg
-        cp -f $strg/module/module.prop $MODDIR/module.prop
-        cp -f $strg/module/service.sh $MODDIR/service.sh
-        cp -f $strg/module/wget $MODDIR/wget
-        cp -f $strg/module/updater.sh $MODDIR/updater.sh
-        chmod -R 777 $MODDIR
-        rm -rf $strg/module
+        [ -f /tmp ] || mkdir -p /tmp
+        $bbx unzip -o $strg/$module_file META-INF/com/google/android/update-binary -d /tmp
+        chmod 755 /tmp/update-binary
+        sh /tmp/update-binary dummy 1 $strg/$module_file
         notification "Module successfully updated"
         #toast "Module successfully updated"
         sh $MODDIR/service.sh &
@@ -152,3 +149,7 @@ install_tool() {
 #[ -d /data/app/com.rja.utility* ] || install_tool "com.rja.utility" "ShowToastMessage_NoDrawerIcon.apk" "https://forum.xda-developers.com/attachment.php?attachmentid=395194&d=1283630913"
 
 module_update
+
+#process=$($bbx ps | grep "sh /magisk/magisk-manager-snapshot-updater/updater.sh" | grep -v grep | $bbx awk '{ print $1 }')
+
+#kill -9 $process
