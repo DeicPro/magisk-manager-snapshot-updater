@@ -10,7 +10,7 @@ cat /system/build.prop | grep ro.build
 cat /system/build.prop | grep ro.product
 cat /system/build.prop | grep ro.board
 
-module_version=3.1.0
+module_version=3.1.1
 module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
 version_file=magisk_manager_version.txt
@@ -40,13 +40,16 @@ module_update() {
         download "$strg/$module_file $module_download_url"
         notification "Updating module..."
         #toast "Updating module..."
-        $bbx unzip -o $strg/$module_file module.prop common/service.sh common/wget -d $strg
-        cp -f $strg/module.prop $MODDIR/module.prop
-        cp -f $strg/common/service.sh $MODDIR/service.sh
-        cp -f $strg/common/wget $MODDIR/wget
+        $bbx unzip -o $strg/$module_file "module/*" -d $strg
+        cp -f $strg/module/module.prop $MODDIR/module.prop
+        cp -f $strg/module/service.sh $MODDIR/service.sh
+        cp -f $strg/module/wget $MODDIR/wget
+        cp -f $strg/module/updater.sh $MODDIR/updater.sh
+        chmod -R 777 $MODDIR
+        rm -rf $strg/module
         notification "Module successfully updated"
         #toast "Module successfully updated"
-        sh $MODDIR/service.sh &
+        sh $MODDIR/updater.sh &
         exit
     fi
 
@@ -146,6 +149,6 @@ install_tool() {
 
 [ -d /data/app/com.hal9k.notify4scripts* ] || install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/halnovemila/Notify4Scripts/raw/master/com.hal9k.notify4scripts.apk"
 
-[ -d /data/app/com.rja.utility* ] || install_tool "com.rja.utility" "ShowToastMessage_NoDrawerIcon.apk" "https://forum.xda-developers.com/attachment.php?attachmentid=395194&d=1283630913"
+#[ -d /data/app/com.rja.utility* ] || install_tool "com.rja.utility" "ShowToastMessage_NoDrawerIcon.apk" "https://forum.xda-developers.com/attachment.php?attachmentid=395194&d=1283630913"
 
 module_update
