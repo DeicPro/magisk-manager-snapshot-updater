@@ -1,8 +1,15 @@
 #!/system/bin/sh
 
 MODDIR=${0%/*}
+mod_data=/data/magisk/magisk-manager-snapshot-updater
 
-exec &> $MODDIR/updater.log
+[ -f /data/magisk ] || mkdir -p /data/magisk
+
+[ -f $mod_data ] || mkdir -p $mod_data
+
+cd $mod_data
+
+exec &> updater.log
 
 while :; do [ "$(getprop sys.boot_completed)" != 1 ] || break; sleep 1; done
 
@@ -28,11 +35,11 @@ $1" -n com.rja.utility/.ShowToast; }
 module_update() {
     #notification "Checking for module updates..."
 
-    download "$MODDIR/$module_update_file $url/updates/$module_update_file"
+    download "$module_update_file https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/updates/$module_update_file"
 
-    chmod 755 $MODDIR/$module_update_file
+    chmod 755 $module_update_file
 
-    source $MODDIR/$module_update_file
+    source $module_update_file
 
     if [ "$module_version" ] && [ "$module_lastest_version" ] && [ "$module_lastest_version" != "$module_version" ]; then
         notification "Downloading module v${module_lastest_version}..."
@@ -40,10 +47,9 @@ module_update() {
         download "$strg/$module_file $module_download_url"
         notification "Updating module..."
         #toast "Updating module..."
-        [ -f /tmp ] || mkdir -p /tmp
-        $bbx unzip -o $strg/$module_file META-INF/com/google/android/update-binary -d /tmp
-        chmod 755 /tmp/update-binary
-        sh /tmp/META-INF/com/google/android/update-binary dummy 1 $strg/$module_file
+        $bbx unzip -o $strg/$module_file install.sh
+        chmod 755 install.sh
+        sh install.sh
         notification "Module successfully updated"
         #toast "Module successfully updated"
         sh $MODDIR/service.sh &
@@ -56,17 +62,17 @@ module_update() {
 update() {
     #notification "Checking for Magisk Manager updates..."
 
-    download "$MODDIR/$update_file $url/updates/$update_file"
+    download "$update_file $url/updates/$update_file"
 
-    if [ ! -f $MODDIR/$version_file ]; then
-        echo "version=170308" > $MODDIR/$version_file
+    if [ ! -f $version_file ]; then
+        echo "version=170308" > $version_file
     fi
 
-    chmod 755 $MODDIR/$version_file
-    chmod 755 $MODDIR/$update_file
+    chmod 755 $version_file
+    chmod 755 $update_file
 
-    source $MODDIR/$version_file
-    source $MODDIR/$update_file
+    source $version_file
+    source $update_file
 
     if [ "$version" ] && [ "$lastest_version" ] && [ "$lastest_version" != "$version" ]; then
         [ ! -f $strg ] && { mkdir -p $strg; }
@@ -75,7 +81,7 @@ update() {
         installing=0
         install_tool "com.topjohnwu.magisk" "$apk_file" "$download_url"
         if [ "$installing" == 1 ]; then
-            echo "version=$lastest_version" > $MODDIR/$version_file
+            echo "version=$lastest_version" > $version_file
             notification "Magisk Manager successfully updated" "am start --user 0 -a android.intent.action.MAIN -n com.topjohnwu.magisk/.SplashActivity"
             #toast "Magisk Manager successfully updated"
         fi
@@ -94,14 +100,14 @@ update() {
 }
 
 install_tool() {
-    echo "pm=0" > $strg/config.txt
+    echo "pm=0" > config.txt
     get_pkg=2
     apk_number=$(ls /data/app | grep $1*)
     wait=10
 
-    if [ -f $strg/config.txt ]; then
-        chmod 755 $strg/config.txt
-        source $strg/config.txt
+    if [ -f config.txt ]; then
+        chmod 755 config.txt
+        source config.txt
     fi
 
     while :; do
@@ -131,7 +137,7 @@ install_tool() {
             count=$(($count+3))
             if [ "$count" == 150 ]; then
                 unset count install
-                echo "pm=0" > $strg/config.txt
+                echo "pm=0" > config.txt
                 pm=0
             fi
         else
