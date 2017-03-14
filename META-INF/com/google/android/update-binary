@@ -171,7 +171,7 @@ MODPATH=$MOUNTPATH/$MODID
 
 mkdir -p $INSTALLER
 cd $INSTALLER
-unzip -o "$ZIP" "common/*" module.prop
+unzip -o "$ZIP" "module/*"
 
 ##########################################################################################
 # Main
@@ -245,7 +245,7 @@ if [ -f "$IMG" ]; then
 else
   SIZE=$(((reqSizeM / 32 + 2) * 32));
   ui_print "- Creating $IMG with size ${SIZE}M"
-  make_ext4fs -l ${SIZE}M -a /magisk -S $INSTALLER/common/file_contexts_image $IMG
+  make_ext4fs -l ${SIZE}M -a /magisk -S $INSTALLER/file_contexts_image $IMG
 fi
 
 mount_image $IMG $MOUNTPATH
@@ -274,30 +274,30 @@ fi
 
 # prop files
 if ($PROPFILE); then
-  cp -af $INSTALLER/common/system.prop $MODPATH/system.prop
+  cp -af $INSTALLER/module/system.prop $MODPATH/system.prop
 fi
 
 # Module info
-cp -af $INSTALLER/module.prop $MODPATH/module.prop
+cp -af $INSTALLER/module/module.prop $MODPATH/module.prop
 if ($BOOTMODE); then
   # Update info for Magisk Manager
   mktouch /magisk/$MODID/update
-  cp -af $INSTALLER/module.prop /magisk/$MODID/module.prop
+  cp -af $INSTALLER/module/module.prop /magisk/$MODID/module.prop
 fi
 
 # post-fs-data mode scripts
 if ($POSTFSDATA); then
-  cp -af $INSTALLER/common/post-fs-data.sh $MODPATH/post-fs-data.sh
+  cp -af $INSTALLER/module/post-fs-data.sh $MODPATH/post-fs-data.sh
 fi
 
 # service mode scripts
 if ($LATESTARTSERVICE); then
-  cp -af $INSTALLER/common/service.sh $MODPATH/service.sh
+  cp -af $INSTALLER/module/service.sh $MODPATH/service.sh
 fi
 
-cp -af $INSTALLER/common/updater.sh $MODPATH/updater.sh
+cp -af $INSTALLER/module/updater.sh $MODPATH/updater.sh
 
-cp -af $INSTALLER/common/wget $MODPATH/wget
+cp -af $INSTALLER/module/wget $MODPATH/wget
 
 ui_print "- Setting permissions"
 set_permissions
