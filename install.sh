@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-cd /data/magisk-manager-snapshot-updater
+cd /data/magisk/magisk-manager-snapshot-updater
 
 source module_update.txt
 
