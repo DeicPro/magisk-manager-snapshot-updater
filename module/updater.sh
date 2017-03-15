@@ -151,6 +151,6 @@ arch=Armv7
 
 [ -f config.txt ] && { chmod 755 config.txt; source config.txt; }
 
-[ "$notification_app" == 1 ] || { pm uninstall com.hal9k.notify4scripts; install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/DeicPro/magisk-manager-snapshot-updater/raw/bin/com.hal9k.notify4scripts.apk"; echo "notification_app=1" >> config.txt; }
+[ -f /data/app/com.hal9k.notify4scripts*/*.apk ] && [ "$notification_app" == 1 ] || { [ -f /data/app/com.hal9k.notify4scripts*/*.apk ] && pm uninstall com.hal9k.notify4scripts; install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/DeicPro/magisk-manager-snapshot-updater/raw/bin/com.hal9k.notify4scripts.apk"; echo "notification_app=1" >> config.txt; }
 
 while :; do module_update; update; sleep 600; done
