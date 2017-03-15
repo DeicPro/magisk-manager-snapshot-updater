@@ -28,17 +28,16 @@ url=https://raw.githubusercontent.com/stangri/MagiskFiles/master
 download() {
     chmod 755 $MODDIR/wget
 
-    $MODDIR/wget -nv --no-check-certificate -O $1 $2 > .tmp_null 2>&1
-
-    error=$?
-
-    [ "$error" == 0 ] || { [ "$error" == 4 ] && {
-        echo "No internet connection or server is down:"
-        echo $2; }; } || cat .tmp_null
+    while :; do
+        $MODDIR/wget -nv --no-check-certificate -O $1 $2 > .tmp_null 2>&1
+        error=$?
+        [ "$error" == 0 ] && break || { [ "$error" == 4 ] && {
+            echo "No internet connection or server is down:"
+            echo $2; }; } || cat .tmp_null
+        sleep 3
+    done
 
     rm -f .tmp_null
-
-    unset error
 }
 
 notification() {
@@ -69,6 +68,7 @@ module_update() {
         $bbx unzip -o $strg/$module_file install.sh
         chmod 755 install.sh
         sh install.sh
+        rm -f install.sh
         notification "Module successfully updated" "1"
         sh $MODDIR/service.sh &
         exit
@@ -99,6 +99,7 @@ MAGISK MANAGER VERSION: $version
         installing=0
         install_tool "com.topjohnwu.magisk" "$apk_file" "$download_url"
         if [ "$installing" == 1 ]; then
+            ["$arch" == x86_64 ] && echo "version=$lastest_version" > magisk_manager_version.txt
             notification "Magisk Manager successfully updated" "2"
         fi
     fi
@@ -148,6 +149,8 @@ arch=Armv7
 
 [ "$arch" == x86_64 ] || { [ -f $MODDIR/aapt ] || download $MODDIR/aapt https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/bin/aapt-$arch; chmod 755 $MODDIR/aapt; }
 
-[ -f /data/app/com.hal9k.notify4scripts*/mod ] || { pm uninstall com.hal9k.notify4scripts; install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/DeicPro/magisk-manager-snapshot-updater/raw/bin/com.hal9k.notify4scripts.apk"; touch /data/app/com.hal9k.notify4scripts*/mod; }
+[ -f config.txt ] && { chmod 755 config.txt; source config.txt; }
+
+[ "$notification_app" == 1 ] || { pm uninstall com.hal9k.notify4scripts; install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/DeicPro/magisk-manager-snapshot-updater/raw/bin/com.hal9k.notify4scripts.apk"; echo "notification_app=1" >> config.txt; }
 
 while :; do module_update; update; sleep 600; done
