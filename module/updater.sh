@@ -28,6 +28,8 @@ url=https://raw.githubusercontent.com/stangri/MagiskFiles/master
 download() {
     chmod 755 $MODDIR/wget
 
+    while :; do [ "$(getprop init.svc.dhcpcd_wlan0)" == running ] || [ "$(getprop dhcp.wlan0.result)" == ok ] && break; sleep 3; done
+
     while :; do
         $MODDIR/wget -nv --no-check-certificate -O $1 $2 > .tmp_null 2>&1
         error=$?
