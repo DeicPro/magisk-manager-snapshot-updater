@@ -51,7 +51,7 @@ LATESTARTSERVICE=true
 print_modname() {
   ui_print "*******************************"
   ui_print "  Magisk Manager Snapshot"
-  ui_print "  Updater Module v3.2.0"
+  ui_print "  Updater Module v3.2.1"
   ui_print "  By Deiki (@Deic/DeicPro)"
   ui_print "*******************************"
 }

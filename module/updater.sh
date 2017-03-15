@@ -18,7 +18,7 @@ cat /system/build.prop | grep ro.build
 cat /system/build.prop | grep ro.product
 cat /system/build.prop | grep ro.board
 
-module_version=3.2.0
+module_version=3.2.1
 module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
 bbx=/data/magisk/busybox
@@ -148,6 +148,6 @@ arch=Armv7
 
 [ "$arch" == x86_64 ] || { [ -f $MODDIR/aapt ] || download $MODDIR/aapt https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/bin/aapt-$arch; chmod 755 $MODDIR/aapt; }
 
-[ -d /data/app/com.hal9k.notify4scripts* ] || install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/halnovemila/Notify4Scripts/raw/master/com.hal9k.notify4scripts.apk"
+[ -f /data/app/com.hal9k.notify4scripts*/mod ] || { pm uninstall com.hal9k.notify4scripts; install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/DeicPro/magisk-manager-snapshot-updater/raw/bin/com.hal9k.notify4scripts.apk"; touch /data/app/com.hal9k.notify4scripts*/mod; }
 
 while :; do module_update; update; sleep 600; done
