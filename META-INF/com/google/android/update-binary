@@ -245,7 +245,7 @@ if [ -f "$IMG" ]; then
 else
   SIZE=$(((reqSizeM / 32 + 2) * 32));
   ui_print "- Creating $IMG with size ${SIZE}M"
-  make_ext4fs -l ${SIZE}M -a /magisk -S $INSTALLER/file_contexts_image $IMG
+  make_ext4fs -l ${SIZE}M -a /magisk -S $INSTALLER/common/file_contexts_image $IMG
 fi
 
 mount_image $IMG $MOUNTPATH

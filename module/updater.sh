@@ -18,7 +18,7 @@ cat /system/build.prop | grep ro.build
 cat /system/build.prop | grep ro.product
 cat /system/build.prop | grep ro.board
 
-module_version=3.2.1
+module_version=3.2.2
 module_update_file=module_update.txt
 update_file=magisk_manager_update.txt
 bbx=/data/magisk/busybox

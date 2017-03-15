@@ -1,8 +1,9 @@
 # Declare files that will always have LF line endings on checkout.
+common/** text eol=lf
 module/** text eol=lf
 META-INF/** text eol=lf
 config.sh text eol=lf
-file_contexts_image text eol=lf
+install.sh text eol=lf
 
 # Denote all files that are truly binary and should not be modified.
 module/wget binary
