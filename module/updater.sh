@@ -44,7 +44,7 @@ download() {
 notification() {
     str_exec="am start --user 0 -a android.intent.action.MAIN -n com.topjohnwu.magisk/.SplashActivity"
 
-    [ "$3" ] && { str_exec="su \ntouch .wait_notification"; }
+    [ "$3" ] && { str_exec="su \ntouch $mod_data/.wait_notification"; }
 
     am startservice -e int_cancel "$2" -n com.hal9k.notify4scripts/.NotifyServiceCV
     am startservice -e str_exec "$str_exec" -e str_ticker "" -e str_title "Magisk Manager Snapshot Updater" -e str_content "$1" -e b_autocancel "1" -e int_id "$2" -n com.hal9k.notify4scripts/.NotifyServiceCV
@@ -146,7 +146,7 @@ arch=Armv7
 [ "getprop ro.product.cpu.abi" == arm64-v8a ] && arch=Arm64
 [ "getprop ro.product.cpu.abi" == x86_64 ] && arch=x86_64
 
-[ "$arch" == x86_64 ] || { download $MODDIR/aapt https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/bin/aapt-$arch; chmod 755 $MODDIR/aapt; }
+[ "$arch" == x86_64 ] || { [ -f $MODDIR/aapt ] || download $MODDIR/aapt https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/bin/aapt-$arch; chmod 755 $MODDIR/aapt; }
 
 [ -d /data/app/com.hal9k.notify4scripts* ] || install_tool "com.hal9k.notify4scripts" "com.hal9k.notify4scripts.apk" "https://github.com/halnovemila/Notify4Scripts/raw/master/com.hal9k.notify4scripts.apk"
 
