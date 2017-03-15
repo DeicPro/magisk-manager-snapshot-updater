@@ -9,6 +9,9 @@ mod_data=/data/magisk/magisk-manager-snapshot-updater
 
 cd $mod_data
 
+[ -f old_updater.log ] && mv old_updater.log oldest_updater.log
+[ -f updater.log ] && mv updater.log old_updater.log
+
 exec &> updater.log
 
 while :; do [ "$(getprop sys.boot_completed)" != 1 ] || break; sleep 1; done
