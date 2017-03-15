@@ -55,7 +55,7 @@ notification() {
 module_update() {
     [ "$first_run" ] || notification "Checking for module updates..." "1"
 
-    download $module_update_file https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/testing/$module_update_file
+    download $module_update_file https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/updates/$module_update_file
 
     chmod 755 $module_update_file
 
