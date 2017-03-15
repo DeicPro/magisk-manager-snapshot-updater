@@ -1,3 +1,3 @@
-module_lastest_version=3.1.1
+module_lastest_version=3.2.0
 module_file=magisk-manager-snapshot-updater-v${module_lastest_version}.zip
 module_download_url=https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/updates/$module_file
