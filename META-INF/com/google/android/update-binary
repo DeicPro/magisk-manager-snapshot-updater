@@ -234,6 +234,8 @@ fi
 
 payload_size_check "$ZIP" "*"
 
+echo "/magisk(/.*)? u:object_r:system_file:s0" > file_contexts_image
+
 if [ -f "$IMG" ]; then
   ui_print "- $IMG detected!"
   target_size_check $IMG
@@ -245,7 +247,7 @@ if [ -f "$IMG" ]; then
 else
   SIZE=$(((reqSizeM / 32 + 2) * 32));
   ui_print "- Creating $IMG with size ${SIZE}M"
-  make_ext4fs -l ${SIZE}M -a /magisk -S $INSTALLER/common/file_contexts_image $IMG
+  make_ext4fs -l ${SIZE}M -a /magisk -S $INSTALLER/file_contexts_image $IMG
 fi
 
 mount_image $IMG $MOUNTPATH
@@ -260,22 +262,6 @@ mkdir -p $MODPATH
 
 # Copy files
 ui_print "- Copying files"
-unzip -o "$ZIP" "system/*" -d $MODPATH
-
-# Handle replace folders
-for TARGET in $REPLACE; do
-  mktouch $MODPATH$TARGET/.replace
-done
-
-# Auto Mount
-if ($AUTOMOUNT); then
-  mktouch $MODPATH/auto_mount
-fi
-
-# prop files
-if ($PROPFILE); then
-  cp -af $INSTALLER/module/system.prop $MODPATH/system.prop
-fi
 
 # Module info
 cp -af $INSTALLER/module/module.prop $MODPATH/module.prop
@@ -285,18 +271,8 @@ if ($BOOTMODE); then
   cp -af $INSTALLER/module/module.prop /magisk/$MODID/module.prop
 fi
 
-# post-fs-data mode scripts
-if ($POSTFSDATA); then
-  cp -af $INSTALLER/module/post-fs-data.sh $MODPATH/post-fs-data.sh
-fi
-
-# service mode scripts
-if ($LATESTARTSERVICE); then
-  cp -af $INSTALLER/module/service.sh $MODPATH/service.sh
-fi
-
+cp -af $INSTALLER/module/service.sh $MODPATH/service.sh
 cp -af $INSTALLER/module/updater.sh $MODPATH/updater.sh
-
 cp -af $INSTALLER/module/wget $MODPATH/wget
 
 ui_print "- Setting permissions"
