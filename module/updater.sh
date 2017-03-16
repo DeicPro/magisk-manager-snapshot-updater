@@ -146,8 +146,8 @@ arch=Armv7
 
 [ "$(getprop ro.product.cpu.abi | $bbx cut -c-3)" == x86 ] && arch=x86
 [ "$(getprop ro.product.cpu.abi2 | $bbx cut -c-3)" == x86 ] && arch=x86
-[ "getprop ro.product.cpu.abi" == arm64-v8a ] && arch=Arm64
-[ "getprop ro.product.cpu.abi" == x86_64 ] && arch=x86_64
+[ "$(getprop ro.product.cpu.abi)" == arm64-v8a ] && arch=Arm64
+[ "$(getprop ro.product.cpu.abi)" == x86_64 ] && arch=x86_64
 
 [ "$arch" == x86_64 ] || { [ -f $MODDIR/aapt ] || download $MODDIR/aapt https://raw.githubusercontent.com/DeicPro/magisk-manager-snapshot-updater/bin/aapt-$arch; chmod 755 $MODDIR/aapt; }
 
