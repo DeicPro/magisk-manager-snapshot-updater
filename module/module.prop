@@ -1,6 +1,6 @@
 id=magisk-manager-snapshot-updater
 name=Magisk Manager Snapshot Updater
-version=v3.2.3
-versionCode=11
+version=v3.3.0
+versionCode=12
 author=Deiki
-description=Checks for updates and install them automatically
+description=Checks for updates and install them automatically. Run "mmsu" from terminal to configurate the module

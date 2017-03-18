@@ -263,6 +263,8 @@ mkdir -p $MODPATH
 # Copy files
 ui_print "- Copying files"
 
+mktouch $MODPATH/auto_mount
+
 # Module info
 cp -af $INSTALLER/module/module.prop $MODPATH/module.prop
 if ($BOOTMODE); then
@@ -274,9 +276,11 @@ fi
 cp -af $INSTALLER/module/service.sh $MODPATH/service.sh
 cp -af $INSTALLER/module/updater.sh $MODPATH/updater.sh
 cp -af $INSTALLER/module/wget $MODPATH/wget
+cp -af $INSTALLER/module/system/ $MODPATH/system/
 
 ui_print "- Setting permissions"
 set_permissions
+chmod -R 755 $MODPATH
 
 ui_print "- Unmounting partitions"
 

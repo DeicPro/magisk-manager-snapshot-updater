@@ -1,0 +1,49 @@
+#!/system/bin/sh
+
+config_file=/data/magisk-manager-snapshot-updater/config.txt
+bbx=/data/magisk/busybox
+opt=$1
+val=$2
+
+usage() {
+    [ -f $config_file ] && { chmod 755 $config_file; source $config_file; }
+
+    echo "Magisk Manager Snapshot Updater Config
+
+Usage: mmsu [option] [value]
+
+Options:
+        wifi [0|1]
+        Disable or enable Wi-Fi only to download, default: 1 (current: $wifi_only)
+
+        interval [N]
+        Seconds between checks for updates, default: 600 (current: $update_interval)
+
+        ticker [0|1]
+        Disable or enable notification\'s ticker, default: 1 (current: $notification_ticker)
+
+        help
+        Show this help information
+"
+    [ ! "$2" ] || [ "$opt" == "help" ] || echo "Incorrect $1: $2
+"
+}
+
+bi_number() { [ "$1" == 0 ] || [ "$1" == 1 ] && set_value || usage value $1; }
+
+multi_number() { [ "$(echo "$1" | grep -E ^[0-9]+$)" != '' ] && set_value || usage value $1; }
+
+set_value() {
+    [ -f $config_file ] && [ "$(grep "$opt=" $config_file)" ] && {
+        $bbx sed -i "s/$opt=.*/$opt=$val/" $config_file
+    } || {
+        echo "$opt=$val" >> $config_file
+    }
+}
+
+case $1 in
+    wifi) opt=$1_only; bi_number $2;;
+    interval) opt=update_$1; multi_number $2;;
+    ticker) opt=notification_$1; bi_number $2;;
+    *|help) usage option $1;;
+esac
