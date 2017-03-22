@@ -1,32 +1,80 @@
 #!/system/bin/sh
 
-config_file=/data/magisk-manager-snapshot-updater/config.txt
+cd /data/magisk-manager-snapshot-updater
+
 bbx=/data/magisk/busybox
-opt=$1
 val=$2
 
 usage() {
-    [ -f $config_file ] && { chmod 755 $config_file; source $config_file; }
+    [ -f config.txt ] && { chmod 755 config.txt; source config.txt; }
 
     echo "Magisk Manager Snapshot Updater Config
 
 Usage: mmsu [option] [value]
 
-Options:
-        wifi [0|1]
+Options:"
+
+    [ ! "$opt" ] || [ "$opt" == wifi_only ] && { echo "        wifi [0|1]
         Disable or enable Wi-Fi only to download, default: 1 (current: $wifi_only)
+"; }
 
-        interval [N]
+    [ ! "$opt" ] || [ "$opt" == update_interval ] && echo "        interval [N]
         Seconds between checks for updates, default: 600 (current: $update_interval)
+"
 
-        ticker [0|1]
-        Disable or enable notification\'s ticker, default: 1 (current: $notification_ticker)
+    [ ! "$opt" ] || [ "$opt" == notification_ticker ] && echo "        ticker [0|1]
+        Disable or enable notification's ticker, default: 1 (current: $notification_ticker)
+"
 
-        help
+    [ ! "$opt" ] || [ "$opt" == updater_log ] && echo "        log [current|old|oldest] [upload]
+        Show target log:
+        current - Show current log
+        old - Show previous log
+        oldest - Show previous' previous log
+        upload - Upload target log to Pastebin and print URL
+"
+
+    echo "        help
         Show this help information
 "
-    [ ! "$2" ] || [ "$opt" == "help" ] || echo "Incorrect $1: $2
+    [ ! "$2" ] || [ "$2" == help ] || echo "Incorrect $1: $2
 "
+}
+
+updater_log() {
+    [ "$1" == current ] && log=updater.log
+
+    [ "$1" == old ] && log=old_updater.log
+
+    [ "$1" == oldest ] && log=oldest_updater.log
+
+    [ "$log" ] && [ ! "$2" ] && { [ -f $log ] && { cat $log; return; } || { echo "
+Log not exist"; return; }; }
+
+    [ "$2" == upload ] && {
+        echo "Uploading log..."
+        /magisk/magisk-manager-snapshot-updater/wget --post-data "api_option=paste&api_dev_key=2dc5d9876384c0232c6ce30ae0558479&api_paste_code=$(cat $log)&api_paste_name=$log" http://pastebin.com/api/api_post.php > /dev/null 2>&1
+        echo "Done
+"
+        while :; do
+            echo -n "What do you want to do with the URL?
+1) Copy to clipboard
+2) Print in terminal
+3) Open in web browser
+> "
+            read i
+            [ "$i" == 1 ] && { am startservice ca.zgrs.clipper/.ClipboardService > /dev/null 2>&1; am broadcast -a clipper.set -e text "$(cat api_post.php)" > /dev/null 2>&1; echo "Copied to clipboard
+"; break; }
+            [ "$i" == 2 ] && { cat api_post.php; echo; break; }
+            [ "$i" == 3 ] && { am start -a android.intent.action.VIEW -d $(cat api_post.php) > /dev/null 2>&1; break; }
+            echo "$i is not a valid option
+"
+        done
+        rm -f api_post.php
+        return
+    }
+
+    [ "$2" ] && usage value $2 || usage value $1
 }
 
 bi_number() { [ "$1" == 0 ] || [ "$1" == 1 ] && set_value || usage value $1; }
@@ -34,16 +82,17 @@ bi_number() { [ "$1" == 0 ] || [ "$1" == 1 ] && set_value || usage value $1; }
 multi_number() { [ "$(echo "$1" | grep -E ^[0-9]+$)" != '' ] && set_value || usage value $1; }
 
 set_value() {
-    [ -f $config_file ] && [ "$(grep "$opt=" $config_file)" ] && {
-        $bbx sed -i "s/$opt=.*/$opt=$val/" $config_file
+    [ -f config.txt ] && [ "$(grep "$opt=" config.txt)" ] && {
+        $bbx sed -i "s/$opt=.*/$opt=$val/" config.txt
     } || {
-        echo "$opt=$val" >> $config_file
+        echo "$opt=$val" >> config.txt
     }
 }
 
 case $1 in
-    wifi) opt=$1_only; bi_number $2;;
-    interval) opt=update_$1; multi_number $2;;
-    ticker) opt=notification_$1; bi_number $2;;
+    wifi) opt=wifi_only; bi_number $val;;
+    interval) opt=update_interval; multi_number $val;;
+    ticker) opt=notification_ticker; bi_number $val;;
+    log) opt=updater_log; $opt $2 $3;;
     *|help) usage option $1;;
 esac
