@@ -1,8 +1,9 @@
 #!/system/bin/sh
 
-cd /data/magisk-manager-snapshot-updater
+source /magisk/magisk-manager-snapshot-updater/functions.sh
 
-bbx=/data/magisk/busybox
+cd $mod_data
+
 val=$2
 
 usage() {

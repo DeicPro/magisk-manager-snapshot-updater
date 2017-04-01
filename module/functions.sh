@@ -5,6 +5,8 @@ mod_data=/data/magisk-manager-snapshot-updater
 bbx=/data/magisk/busybox
 strg=$EXTERNAL_STORAGE/MagiskManager
 
+cd $mod_data
+
 config() {
     [ -f config.txt ] || {
         cat > config.txt <<EOF
